@@ -1,0 +1,81 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.33.0.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: 48a4131ae372c2c46938a286f0569f4fcd26d0f550058c5fe723f39e21f228af
+
+name:           haskell-skript-parser
+version:        0.1.0.0
+description:    Please see the README on GitHub at <https://github.com/Github username here/haskell-skript-parser#readme>
+homepage:       https://github.com/Github username here/haskell-skript-parser#readme
+bug-reports:    https://github.com/Github username here/haskell-skript-parser/issues
+author:         Author name here
+maintainer:     Author email here
+copyright:      2019 Author name here
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+extra-source-files:
+    README.md
+    ChangeLog.md
+
+source-repository head
+  type: git
+  location: https://github.com/Github username here/haskell-skript-parser
+
+library
+  exposed-modules:
+      SkriptParser.Matching.PatternMatching
+    , SkriptParser.Matching.PatternParsing
+    , SkriptParser.Util
+    , SkriptParser.Util.Constraint.Classes
+    , SkriptParser.Util.Constraint.PreludeDefs
+    , SkriptParser.Util.Exists
+    , SkriptParser.Util.FState
+    , SkriptParser.Util.Strings
+    , SkriptParser.SyntaxParsing
+    , SkriptParser.TriggerState
+    , SkriptParser.Types
+    , SkriptParser.Logging
+  other-modules:
+      Paths_haskell_skript_parser
+  hs-source-dirs:
+      src
+  build-depends:
+      base >=4.7 && <5
+    , containers
+    , text >= 1.2.2
+    , regex-pcre
+    , array
+    , mtl
+    , transformers
+    , megaparsec
+    , constraints
+  default-language: Haskell2010
+
+executable haskell-skript-parser-exe
+  main-is: Main.hs
+  other-modules:
+      Paths_haskell_skript_parser
+  hs-source-dirs:
+      app
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , haskell-skript-parser
+  default-language: Haskell2010
+
+test-suite haskell-skript-parser-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      Paths_haskell_skript_parser
+  hs-source-dirs:
+      test
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , haskell-skript-parser
+  default-language: Haskell2010
