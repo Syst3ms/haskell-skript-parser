@@ -1,63 +1,45 @@
 {-# LANGUAGE GADTs #-}
-{-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE ConstraintKinds #-}
+{-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE StandaloneDeriving #-}
 
-module SkriptParser.Types
-    where
+module SkriptParser.Types (
+  Arithmetic(..),
+  SkriptType(..),
+  makeSimpleType,
+  someTypeOf, baseName, pluralized, PatternType
+) where
 
-import Data.Dynamic
-import Data.Typeable (TypeRep)
 import SkriptParser.Util
-import SkriptParser.Util.Dynamic
-import Type.Reflection hiding (TypeRep)
-import SkriptParser.Util.Exists (Exists(..))
+import Type.Reflection
 import SkriptParser.Util.Constraint.Classes (AllCons)
 
-data ChangeMode = Set | Add | Remove | Delete | Reset | RemoveAll deriving (Eq, Show)
-
-data Changer = Changer {
-  acceptsChange :: Dynamic -> ChangeMode -> [TypeRep],
-  change :: Dynamic -> [Dynamic]  -> ChangeMode -> Maybe [Dynamic]
-}
-
-class Typeable a => Arithmetic a where
+class AllCons a => Arithmetic a where
     (-|) :: a -> a -> a -- Difference
     (+.) :: a -> a -> a
     (-.) :: a -> a -> a
 
 data SkriptType where
-  SkriptType :: {
-    typ :: SomeTypeRep,
+  SkriptType :: AllCons a => {
+    typ :: TypeRep a,
     nameForms :: (String, String),
-    toString :: Dynamic -> String,
-    literalParser :: Maybe (String -> Dynamic),
-    changer :: Maybe Changer,
-    arithmetic :: Maybe String
+    toString :: a -> String,
+    literalParser :: Maybe (String -> Maybe a)
   } -> SkriptType
 
-instance Arithmetic Integer where
-  (-|) = (abs .) . (-)
-  (+.) = (+)
-  (-.) = (-)
-
-instance Arithmetic Double where
-  (-|) = (abs .) . (-)
-  (+.) = (+)
-  (-.) = (-)
-
-
 instance Show SkriptType where
-  showsPrec p t = showParen (p>10) $ 
-    showString "SkriptType { " . showString (baseName t) . showString ", " . shows (typ t) . showString " }"
+  showsPrec p t@SkriptType {..} = showParen (p>10) $
+    showString "SkriptType { " . showString (baseName t) . showString ", " . shows typ . showString " }"
 instance Eq SkriptType where
-  (==) t1 t2 = typ t1 == typ t2  
+  t1 == t2 = someTypeOf t1 == someTypeOf t2
 
-makeSimpleType :: TypeRep -> (String, String) -> (Dynamic -> String) -> SkriptType
-makeSimpleType tRep name str = SkriptType tRep name str Nothing Nothing Nothing
+makeSimpleType :: AllCons a => TypeRep a -> (String, String) -> (a -> String) -> SkriptType
+makeSimpleType tRep name str = SkriptType tRep name str Nothing
+
+someTypeOf :: SkriptType -> SomeTypeRep
+someTypeOf SkriptType {..} = SomeTypeRep typ
 
 baseName :: SkriptType -> String
 baseName = fst . nameForms
@@ -65,7 +47,9 @@ baseName = fst . nameForms
 pluralized :: SkriptType -> Bool -> String
 pluralized t plural = (if plural then fst else snd) (nameForms t)
 
-newtype PatternType = PatternType (SkriptType, Bool) deriving (Eq)
+newtype PatternType = PatternType (SkriptType, Bool)
+
+deriving instance Eq PatternType
 
 instance Show PatternType where
   show (PatternType (t,p)) = pluralized t p

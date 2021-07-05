@@ -32,6 +32,8 @@ pattern x :> xs <- (T.uncons -> Just (x, xs))
 pattern Empty :: Text
 pattern Empty <- (T.uncons -> Nothing)
 
+{-# COMPLETE (:>), Empty #-}
+
 showText :: Text -> ShowS
 showText = showString . T.unpack
 

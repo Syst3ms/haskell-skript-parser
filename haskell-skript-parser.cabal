@@ -35,6 +35,8 @@ library
     , SkriptParser.Util.Exists
     , SkriptParser.Util.FState
     , SkriptParser.Util.Strings
+    , SkriptParser.Util.Exception
+    , SkriptParser.Util.Flow
     , SkriptParser.SyntaxParsing
     , SkriptParser.TriggerState
     , SkriptParser.Types
@@ -53,6 +55,8 @@ library
     , transformers
     , megaparsec
     , constraints
+    , random
+    , MonadRandom
   default-language: Haskell2010
 
 executable haskell-skript-parser-exe

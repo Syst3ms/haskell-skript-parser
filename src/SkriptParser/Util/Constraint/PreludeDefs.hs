@@ -5,6 +5,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE UndecidableInstances #-}
 
 module SkriptParser.Util.Constraint.PreludeDefs where
 
@@ -21,29 +22,36 @@ import Data.String (IsString)
 import Data.Void (Void)
 import GHC.Generics (Generic, Generic1)
 import SkriptParser.Util.Constraint.Classes
+import SkriptParser.Types (Arithmetic(..))
 
+{-
+  Declarations for Data.Constraint
+-}
 instance Monoid a :=> Monad ((,) a) where ins = Sub Dict
 instance Ord e :=> Ord1 (Either e) where ins = Sub Dict
 instance Eq e :=> Eq1 (Either e) where ins = Sub Dict
 instance Read e :=> Read1 (Either e) where ins = Sub Dict
 instance Show e :=> Show1 (Either e) where ins = Sub Dict
-
 instance (Monoid a, Monoid b) :=> Monad ((,,) a b) where ins = Sub Dict 
-instance (Monoid a, Monoid b) :=> Applicative ((,,) a b) where ins = Sub Dict 
+instance (Monoid a, Monoid b) :=> Applicative ((,,) a b) where ins = Sub Dict
 
+instance (AllCons a, Num a) :=> Arithmetic a where ins = Sub Dict
 
+{-
+  Declarations for AllCons
+-}
 instance AllCons () where reify = proofMap @() @'[Eq, Ord, Monoid, Semigroup, Enum, Show, Read, Bounded, Data]
 instance AllCons Void where reify = proofMap @Void @'[Eq, Ord, Semigroup, Read, Show, Generic, Data]
 instance AllCons Bool where reify = proofMap @Bool @'[Bounded, Enum, Eq, Data, Ord, Read, Show, Generic]
 instance AllCons Ordering where
   reify = proofMap @Ordering @'[Bounded, Enum, Eq, Data, Ord, Read, Show, Generic, Semigroup, Monoid, Generic, Data]
 instance AllCons Char where reify = proofMap @Char @'[Bounded, Enum, Eq, Data, Ord, Read, Show]
-instance AllCons Int where reify = proofMap @Int @'[Bounded, Enum, Eq, Integral, Data, Num, Ord, Read, Real, Show]
-instance AllCons Integer where reify = proofMap @Integer @'[Enum, Eq, Integral, Data, Num, Ord, Read, Real, Show]
+instance AllCons Int where reify = proofMap @Int @'[Bounded, Enum, Eq, Integral, Data, Num, Ord, Read, Real, Show, Arithmetic]
+instance AllCons Integer where reify = proofMap @Integer @'[Enum, Eq, Integral, Data, Num, Ord, Read, Real, Show, Arithmetic]
 instance AllCons Float where
-  reify = proofMap @Float @'[Enum, Eq, Floating, Fractional, Data, Num, Ord, Read, Real, RealFloat, RealFrac, Show]
+  reify = proofMap @Float @'[Enum, Eq, Floating, Fractional, Data, Num, Ord, Read, Real, RealFloat, RealFrac, Show, Arithmetic]
 instance AllCons Double where reify = reify @Float
-instance AllCons Word where reify = proofMap @Word @'[Bounded, Enum, Eq, Integral, Data, Num, Ord, Read, Real, Show]
+instance AllCons Word where reify = proofMap @Word @'[Bounded, Enum, Eq, Integral, Data, Num, Ord, Read, Real, Show, Arithmetic]
 ---
 instance AllCons a => AllCons [a] where
   reify = proofMap @[a] @'[Monoid, Semigroup]
@@ -87,3 +95,11 @@ instance AllCons Either where reify = proofMap @Either @'[Show2, Read2, Ord2, Eq
 ---
 instance AllCons a => AllCons ((,,) a) where reify = proofMap @((,,) a) @'[Bifunctor, Bifoldable, Bitraversable]
 
+{-
+  Declarations for Arithmetic
+-}
+
+instance (AllCons a, Num a) => Arithmetic a where
+  (-|) = (abs .) . (-)
+  (+.) = (+)
+  (-.) = (-)

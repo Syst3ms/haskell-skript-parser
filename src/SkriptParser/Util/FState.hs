@@ -27,8 +27,9 @@ import Control.Monad.State (State, MonadState(..), gets, runState, modify)
 import Control.Monad.Trans.Maybe (MaybeT(..), runMaybeT)
 import Data.Bifunctor (first)
 import Data.Foldable (asum)
+
 -- | A State monad that keeps track of the state even in the case of failure (as that state carries information about
---   said failure)
+--   x
 type FailState s a = MaybeT (State s) a
 type SelfFailState s = FailState s s
 

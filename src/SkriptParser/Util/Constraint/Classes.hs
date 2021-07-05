@@ -2,19 +2,15 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE ConstraintKinds #-}
-{-# LANGUAGE UndecidableSuperClasses #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE PolyKinds #-}
-{-# LANGUAGE TypeFamilyDependencies #-}
-{-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE RoleAnnotations #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE StandaloneDeriving #-}
+{-# LANGUAGE TypeFamilies #-}
 
 module SkriptParser.Util.Constraint.Classes (
   ProofMap, SomeDict(..), (:>)(..),
@@ -23,7 +19,7 @@ module SkriptParser.Util.Constraint.Classes (
   SDepList(..), MDepList(..),
   AllCons(..), SimpleConstraints(..),
   passthrough, passthrough2, passthroughs,
-  getProof,
+  getProof, getProofTR,
   
   Dict(..), (:-)(..), (:=>)(..)
 ) where
@@ -34,7 +30,7 @@ import Data.Set (Set)
 import Data.Constraint (Constraint, Dict(..), (:=>)(..), (:-)(..))
 import Data.Typeable (Typeable, cast)
 import SkriptParser.Util (intersections)
-import Type.Reflection (someTypeRep, SomeTypeRep)
+import Type.Reflection (someTypeRep, SomeTypeRep(..), TypeRep, typeRep)
 import qualified Data.Set as S
 import qualified Data.Map as M
 import Data.Kind (Type)
@@ -118,4 +114,9 @@ someDict :: forall c. (Typeable c, c) => SomeDict
 someDict = SomeDict (Dict @c)
 
 getProof :: forall c a. (Typeable c, AllCons a) => Maybe (Dict (c a))
-getProof = reify @a !? someTypeRep (Proxy @c) >>= \(SomeDict d) -> cast d
+getProof = getProofTR (typeRep @a)
+
+getProofTR :: forall c a. (Typeable c, AllCons a) => TypeRep a -> Maybe (Dict (c a))
+getProofTR tr = reify @a !? SomeTypeRep tr >>= \(SomeDict d) -> cast d
+
+

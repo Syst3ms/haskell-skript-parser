@@ -37,5 +37,10 @@
     <orderEntry type="library" name="semigroups-0.19.1" level="project" />
     <orderEntry type="library" name="transformers-compat-0.6.6" level="project" />
     <orderEntry type="library" name="type-equality-1" level="project" />
+    <orderEntry type="library" name="random-1.1" level="project" />
+    <orderEntry type="library" name="time-1.9.3" level="project" />
+    <orderEntry type="library" name="Win32-2.6.1.0" level="project" />
+    <orderEntry type="library" name="filepath-1.4.2.1" level="project" />
+    <orderEntry type="library" name="MonadRandom-0.5.2" level="project" />
   </component>
 </module>
