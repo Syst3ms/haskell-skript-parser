@@ -16,10 +16,16 @@ import SkriptParser.Util
 import Type.Reflection
 import SkriptParser.Util.Constraint.Classes (AllCons)
 
-class AllCons a => Arithmetic a where
+class Arithmetic a where
     (-|) :: a -> a -> a -- Difference
     (+.) :: a -> a -> a
     (-.) :: a -> a -> a
+
+instance Arithmetic Integer where { (-|) = (abs .) . (-) ; (+.) = (+) ; (-.) = (-) }
+instance Arithmetic Int where { (-|) = (abs .) . (-) ; (+.) = (+) ; (-.) = (-) }
+instance Arithmetic Double where { (-|) = (abs .) . (-) ; (+.) = (+) ; (-.) = (-) }
+instance Arithmetic Float where { (-|) = (abs .) . (-) ; (+.) = (+) ; (-.) = (-) }
+instance Arithmetic Word where { (-|) = (abs .) . (-) ; (+.) = (+) ; (-.) = (-) }
 
 data SkriptType where
   SkriptType :: AllCons a => {

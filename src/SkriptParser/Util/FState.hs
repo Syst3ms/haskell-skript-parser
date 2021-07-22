@@ -30,7 +30,7 @@ import Data.Foldable (asum)
 
 -- | A State monad that keeps track of the state even in the case of failure (as that state carries information about
 --   x
-type FailState s a = MaybeT (State s) a
+type FailState s = MaybeT (State s)
 type SelfFailState s = FailState s s
 
 runFState :: FailState s a -> s -> (Maybe a, s)
@@ -76,9 +76,7 @@ justFail = (>> mzero) . modify
 
 -- | Gets multiple components of a state at once
 gets2 :: (s -> a) -> (s -> b) -> FailState s (a,b)
-gets2 f g = do
-    s <- get
-    return (f s, g s)
+gets2 f g = gets (\s -> (f s, g s))
 
 -- | Chains stateful operations together until one of them runs successfully (returning Just the result and the
 -- corresponding input)
@@ -102,7 +100,7 @@ maybeFState :: Maybe a -> (a -> s -> s) -> SelfFailState s
 maybeFState m f = maybe mzero (gets . f) m
 
 success :: s -> FailState s s
-success s = do {put s; return s}
+success s = put s >> return s
 
 instance Semigroup (SelfFailState s) where
    (<>) = (>>)

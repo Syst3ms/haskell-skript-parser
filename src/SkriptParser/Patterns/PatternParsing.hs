@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
-module SkriptParser.Matching.PatternParsing where
+module SkriptParser.Patterns.PatternParsing where
 
 import Data.Char (isAlpha)
 import Data.List.NonEmpty (NonEmpty(..))
@@ -8,7 +8,7 @@ import Data.Sequence (Seq((:<|)))
 import Data.Text.Lazy (Text)
 import Data.Void (Void)
 import SkriptParser.Logging (Logger, logError, ErrorType(..))
-import SkriptParser.Matching.PatternMatching (PatternElement(..), Acceptance(..), ParseMark)
+import SkriptParser.Patterns.PatternMatching (PatternElement(..), Acceptance(..), ParseMark)
 import SkriptParser.Util (always, todo)
 import SkriptParser.Util.FState (FailState, justFail)
 import SkriptParser.Util.Strings (splitOutsideParens)

@@ -4,7 +4,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE FlexibleInstances #-}
 
-module SkriptParser.Matching.PatternMatching where
+module SkriptParser.Patterns.PatternMatching where
 
 import Prelude hiding (log)
   

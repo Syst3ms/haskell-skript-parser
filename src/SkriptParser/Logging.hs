@@ -5,31 +5,16 @@
 {-# LANGUAGE FlexibleInstances #-}
 
 module SkriptParser.Logging (
-  ErrorType(..),
-  ErrorContext(..),
-  Verbosity(..),
-  LogEntryType(..),
-  LogEntry(..),
+  ErrorType(..), ErrorContext(..), Verbosity(..), LogEntryType(..), LogEntry(..),
   Logger(isDebug, hasError, fileInfo),
-  formatLog,
-  makeLogEntry,
-  toErrorType,
   emptyLogger,
+  formatLog, toErrorType, makeLogEntry,
   switchContext,
-  finish,
-  finalizeLogs,
-  recurse,
-  recurseState,
-  nextLine,
-  forgetError,
-  clearLessThanError,
-  clearErrors,
-  clearNotDebug,
-  logNewEntry,
-  logError,
-  logWarn,
-  logInfo,
-  logDebug
+  finish, finalizeLogs,
+  recurse, recurseState,
+  line, setLine, nextLine,
+  forgetError, clearLessThanError, clearErrors, clearNotDebug,
+  logNewEntry, logError, logWarn, logInfo, logDebug
 ) where
 
 import Control.Applicative (liftA2)
@@ -144,6 +129,12 @@ recurseState extract embed m = do
   modify $ embed $ logr { errContext = NE.fromList $ NE.drop 1 $ errContext logr' }
   return res
 
+line :: Logger -> Maybe Int
+line Logger { fileInfo } = thd3 <$> fileInfo
+
+setLine :: Maybe Int -> LoggerS
+setLine ml log@Logger { fileInfo } = log { fileInfo = liftA2 (\l (n,ls,_) -> (n,ls,l)) ml fileInfo }
+
 nextLine :: LoggerS
 nextLine l@Logger { fileInfo } = l { fileInfo = (succ <$>) <$> fileInfo }
 
@@ -152,9 +143,9 @@ forgetError l = l { hasError = False }
 
 clearLessThanError :: LoggerS
 clearLessThanError l@Logger { errContext, entries } = l { entries =
-  filter (liftA2 (&&) 
-    ((<= EQ) . (compareListLength `on` NE.tail) errContext . errCtx) 
-    ((> Warning) . entryType)
+  filter (\e -> 
+    (compareListLength `on` NE.tail) errContext (errCtx e) <= EQ &&
+    entryType e > Warning
   ) entries
 }
 

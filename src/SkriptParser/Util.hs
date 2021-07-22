@@ -7,9 +7,10 @@ module SkriptParser.Util (
   todo,
   always,
   fst3, snd3, thd3,
-  compareLength,
   compareListLength,
-  intersections
+  intersections,
+  check,
+  (<$$>)
 ) where
 
 import Data.Map (Map)
@@ -38,12 +39,12 @@ compareListLength []     []     = EQ
 compareListLength []     (_:_)  = LT
 compareListLength (_:_)  []     = GT
 compareListLength (_:r1) (_:r2) = compareListLength r1 r2
-
-compareLength :: [a] -> Int -> Ordering
-compareLength [] n = compare 0 n
-compareLength (_:r) n
-  | n <= 0 = GT
-  | otherwise = compareLength r (pred n)
   
-intersections :: (Foldable f, Ord k) => f (Map k v) -> Map k v
+intersections :: (Foldable t, Ord k) => t (Map k v) -> Map k v
 intersections = foldl' M.intersection M.empty
+
+check :: (a -> Bool) -> Bool -> Bool -> [a] -> Bool
+check p inv isAnd = (inv /=) . (if isAnd then and else or) . map p
+
+(<$$>) :: (Functor f, Functor g) => (a -> b) -> f (g a) -> f (g b)
+(<$$>) = fmap . fmap

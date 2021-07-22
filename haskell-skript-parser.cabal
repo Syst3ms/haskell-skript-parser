@@ -27,16 +27,20 @@ source-repository head
 
 library
   exposed-modules:
-      SkriptParser.Matching.PatternMatching
-    , SkriptParser.Matching.PatternParsing
+      SkriptParser.Patterns.PatternMatching
+    , SkriptParser.Patterns.PatternParsing
     , SkriptParser.Util
     , SkriptParser.Util.Constraint.Classes
     , SkriptParser.Util.Constraint.PreludeDefs
     , SkriptParser.Util.Exists
+    , SkriptParser.Util.Wished
     , SkriptParser.Util.FState
     , SkriptParser.Util.Strings
-    , SkriptParser.Util.Exception
-    , SkriptParser.Util.Flow
+    , SkriptParser.Util.Dynamic
+    , SkriptParser.Util.Monad.Flow
+    , SkriptParser.Util.Monad.WishedT
+    , SkriptParser.Effects
+    , SkriptParser.SyntaxClasses
     , SkriptParser.SyntaxParsing
     , SkriptParser.TriggerState
     , SkriptParser.Types

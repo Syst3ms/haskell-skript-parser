@@ -1,3 +1,4 @@
+  
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE DataKinds #-}
@@ -7,7 +8,7 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE UndecidableInstances #-}
 
-module SkriptParser.Util.Constraint.PreludeDefs where
+module SkriptParser.Util.Constraint.PreludeDefs  where
 
 import Control.Applicative (Alternative)
 import Control.Monad (MonadPlus)
@@ -22,7 +23,7 @@ import Data.String (IsString)
 import Data.Void (Void)
 import GHC.Generics (Generic, Generic1)
 import SkriptParser.Util.Constraint.Classes
-import SkriptParser.Types (Arithmetic(..))
+import SkriptParser.Types (Arithmetic)
 
 {-
   Declarations for Data.Constraint
@@ -32,10 +33,11 @@ instance Ord e :=> Ord1 (Either e) where ins = Sub Dict
 instance Eq e :=> Eq1 (Either e) where ins = Sub Dict
 instance Read e :=> Read1 (Either e) where ins = Sub Dict
 instance Show e :=> Show1 (Either e) where ins = Sub Dict
-instance (Monoid a, Monoid b) :=> Monad ((,,) a b) where ins = Sub Dict 
+instance (Monoid a, Monoid b) :=> Monad ((,,) a b) where ins = Sub Dict
 instance (Monoid a, Monoid b) :=> Applicative ((,,) a b) where ins = Sub Dict
+instance Monoid b :=> Monoid (a -> b) where ins = Sub Dict
+instance Semigroup b :=> Semigroup (a -> b) where ins = Sub Dict
 
-instance (AllCons a, Num a) :=> Arithmetic a where ins = Sub Dict
 
 {-
   Declarations for AllCons
@@ -68,6 +70,8 @@ instance (AllCons a, AllCons b) => AllCons (Either a b) where
             <> passthrough2 @'[Eq, Data, Ord, Read, Show] @a @b
 instance (AllCons a, AllCons b) => AllCons (a,b) where
   reify = passthrough2 @'[Eq, Monoid, Ord, Semigroup, Show, Read, Bounded] @a @b
+instance (AllCons a, AllCons b) => AllCons (a -> b) where
+  reify = findDeps @(a -> b) @b @'[Monoid ':> Monoid, Semigroup ':> Semigroup]
 ---
 instance (AllCons a, AllCons b, AllCons c) => AllCons (a,b,c) where
   reify = passthroughs @'[Eq, Monoid, Ord, Semigroup, Show, Read, Bounded, Data] @'[a, b, c]
@@ -86,6 +90,7 @@ instance AllCons a => AllCons ((,) a) where
 instance AllCons e => AllCons (Either e) where
   reify = proofMap @(Either e) @'[Monad, Functor, MonadFix, Applicative, Foldable, Traversable, Generic1] 
             <> findDeps @(Either e) @e @'[Show ':> Show1, Read ':> Read1, Eq ':> Eq1, Ord ':> Ord1]
+instance AllCons a => AllCons ((->) a) where reify = proofMap @((->) a) @'[Functor, Applicative, Monad, MonadFix]         
 ---
 instance (AllCons a, AllCons b) => AllCons ((,,) a b) where
   reify = proofMap @((,,) a b) @'[Functor, Generic1] 
@@ -94,12 +99,4 @@ instance (AllCons a, AllCons b) => AllCons ((,,) a b) where
 instance AllCons Either where reify = proofMap @Either @'[Show2, Read2, Ord2, Eq2, Bifunctor, Bifoldable, Bitraversable]
 ---
 instance AllCons a => AllCons ((,,) a) where reify = proofMap @((,,) a) @'[Bifunctor, Bifoldable, Bitraversable]
-
-{-
-  Declarations for Arithmetic
--}
-
-instance (AllCons a, Num a) => Arithmetic a where
-  (-|) = (abs .) . (-)
-  (+.) = (+)
-  (-.) = (-)
+  
